@@ -7,27 +7,31 @@ object juego{
 	method configurar(){
 		game.width(12)
 		game.height(8)
-		game.title("Dino Game")
-		game.addVisual(suelo)
-		game.addVisual(cactus)
-		game.addVisual(dino)
+		game.title("Robot Game")
+		game.addVisual(fondo)
+		game.addVisual(meteorito)
+		game.addVisual(robot)
 		game.addVisual(reloj)
+		game.addVisual(naveespacial)
+		game.boardGround("FondoFinal.jpg")
 	
 		keyboard.space().onPressDo{ self.jugar()}
 		
-		game.onCollideDo(dino,{ obstaculo => obstaculo.chocar()})
+		game.onCollideDo(robot,{ obstaculo => obstaculo.chocar()})
+		
 		
 	} 
 	
 	method    iniciar(){
-		dino.iniciar()
+		robot.iniciar()
 		reloj.iniciar()
-		cactus.iniciar()
+		meteorito.iniciar()
+		naveespacial.iniciar()
 	}
 	
 	method jugar(){
-		if (dino.estaVivo()) 
-			dino.saltar()
+		if (robot.estaVivo()) 
+			robot.saltar()
 		else {
 			game.removeVisual(gameOver)
 			self.iniciar()
@@ -37,16 +41,17 @@ object juego{
 	
 	method terminar(){
 		game.addVisual(gameOver)
-		cactus.detener()
+		meteorito.detener()
 		reloj.detener()
-		dino.morir()
+		robot.morir()
+		naveespacial.detener()
 	}
 	
 }
 
 object gameOver {
 	method position() = game.center()
-	method text() = "GAME OVER"
+	method text() = "JUEGO TERMINADO"
 	
 
 }
@@ -70,17 +75,17 @@ object reloj {
 	}
 }
 
-object cactus {
+object meteorito {
 	 
-	const posicionInicial = game.at(game.width()-1,suelo.position().y())
+	const posicionInicial = game.at(game.width()-1,fondo.position().y())
 	var position = posicionInicial
 
-	method image() = "cactus.png"
+	method image() = "meteorito.png"
 	method position() = position
 	
 	method iniciar(){
 		position = posicionInicial
-		game.onTick(velocidad,"moverCactus",{self.mover()})
+		game.onTick(velocidad,"moverMeteorito",{self.mover()})
 	}
 	
 	method mover(){
@@ -93,27 +98,27 @@ object cactus {
 		juego.terminar()
 	}
     method detener(){
-		game.removeTickEvent("moverCactus")
+		game.removeTickEvent("moverMeteorito")
 	}
 }
 
-object suelo{
+object fondo{
 	
 	method position() = game.origin().up(1)
 	
-	method image() = "suelo.png"
+	method image() = "fondo.png"
 }
 
 
-object dino {
+object robot {
 	var vivo = true
-	var position = game.at(1,suelo.position().y())
+	var position = game.at(1,fondo.position().y())
 	
-	method image() = "dino.png"
+	method image() = "robot.png"
 	method position() = position
 	
 	method saltar(){
-		if(position.y() == suelo.position().y()) {
+		if(position.y() == fondo.position().y()) {
 			self.subir()
 			game.schedule(velocidad*3,{self.bajar()})
 		}
@@ -127,7 +132,7 @@ object dino {
 		position = position.down(1)
 	}
 	method morir(){
-		game.say(self,"¡Auch!")
+		game.say(self,"¡SOBRECALENTAMIENTO!")
 		vivo = false
 	}
 	method iniciar() {
@@ -135,5 +140,32 @@ object dino {
 	}
 	method estaVivo() {
 		return vivo
+	}
+}
+
+object naveespacial {
+	 
+	const posicionInicial = game.at(game.width()-5,fondo.position().y())
+	var position = posicionInicial
+
+	method image() = "naveespacial.png"
+	method position() = position
+	
+	method iniciar(){
+		position = posicionInicial
+		game.onTick(velocidad,"moverNaveespacial",{self.mover()})
+	}
+	
+	method mover(){
+		position = position.left(1)
+		if (position.x() == -1)
+			position = posicionInicial
+	}
+	
+	method chocar(){
+		juego.terminar()
+	}
+    method detener(){
+		game.removeTickEvent("moverNaveespacial")
 	}
 }
